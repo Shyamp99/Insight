@@ -5,23 +5,34 @@ from tkinter import *
 import pymongo
 from pymongo import MongoClient
 
+client = MongoClient('mongodb://kuber:password123@ds249942.mlab.com:49942/medar')
+
+db = client["medar"]
+collection = db.test_collection
+
+# faces_col = db["faces"]
+# patient_col = db["patients"]
+
+users_col = db["users"]
+profile_col = db["profile"]
+
+names = []
+encoded_faces = []
 
 # the actual training and encoding
 def addPerson():
     # train cv to recognize face after it construct a set of vectors and then encodes it
     new_person_image = fr.load_image_file("GET REQUEST FOR MOST RECENT PICTURE")
     new_person_encoding = fr.face_encodings(new_person_image)
-    # using get request from DB to get the array which stores all
-    known_people =  ##INSERT GET REQUEST HERE##
-    # NOW WE UPDATE THE ARRAY BY ADDING THE NEW ENCODED FACE'S VECTOR VALUES
-    # UPDATE THE DB WITH THE NEWFOUND ARRAY
-    # END OF FUNCTION
+    encoded_faces.append(new_person_encoding)
+    names.append()
 
 
 def initialize_camera():
-    known_face_names =  # insert the fucking get request here
+
     # this enables the video feed
     vid_cap = cv.VideoCapture(0)
+    process_this_frame = True
 
     while True:
         # take a single frame from the feed and then resize it to 1/4 off the size for faster processing
@@ -36,46 +47,36 @@ def initialize_camera():
             face_locations = fr.face_locations(rgb_small_frame)
             face_encodings = fr.face_encodings(rgb_small_frame, face_locations)
 
-            face_names = []
+            #face_names = []
             for face_encoding in face_encodings:
                 # See if the face is a match for the known face(s)
-                matches = fr.compare_faces(fr, face_encoding)
+                matches = fr.compare_faces(fr, encoded_faces)
                 name = "Unknown"
                 medical_info = "N/A"
 
-                # If a match was found within known_face_encodings, just use the first one.
+                # If a match was found within encoded_faces, just use the first one.
                 if True in matches:
                     first_match_index = matches.index(True)
-                    name = known_face_names[first_match_index]
+                    name = names[first_match_index]
                     # THEN USE THE NAME TO GET THE DATA FROM THE DICTIONARY OR HASTABLE OR WHATEVER
 
-                face_names.append(name)
+                #face_names.append(name)
 
-        process_this_frame = not process_this_frame  # Display the results
-        for (top, right, bottom, left), name in zip(face_locations, face_names):
-            # Scale back up face locations since the frame we detected in was scaled to 1/4 size
-            top *= 4
-            right *= 4
-            bottom *= 4
-            left *= 4
+        process_this_frame = not process_this_frame
+        if(name != 'Unknown'):
+            break;
+        else:
+            print("PERSON IS NOT IN THE SYSTEM")
+            break;
 
-            # Draw a box around the face
-            cv.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
-
-            # Draw a label with a name below the face
-            cv.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
-            font = cv.FONT_HERSHEY_DUPLEX
-            cv.putText(frame, name + '\n' + medical_info, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
-
-        # Display the resulting image
-        cv.imshow('Video', frame)
-
-        # exut by pressing 'q'
-        if cv.waitKey(1) & 0xFF == ord('q'):
-            break
     # terminating the final processes
     vid_cap.release()
     cv.destroyAllWindows()
+    id = users_col.find("name")
+    patient = profile_col.find("patient")
+    return patient;
+
+
 
 
 def start():
