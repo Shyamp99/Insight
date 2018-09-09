@@ -1,9 +1,8 @@
 import face_recognition as fr
 import cv2 as cv
-import tkinter as tk
-from tkinter import *
 import pymongo
 from pymongo import MongoClient
+import base64
 
 client = MongoClient('mongodb://kuber:password123@ds249942.mlab.com:49942/medar')
 
@@ -20,12 +19,17 @@ names = []
 encoded_faces = []
 
 # the actual training and encoding
-def addPerson():
+def addPerson(name):
     # train cv to recognize face after it construct a set of vectors and then encodes it
-    new_person_image = fr.load_image_file("GET REQUEST FOR MOST RECENT PICTURE")
+    id = users_col.find(name)
+    patient = profile_col.find(id)
+    picture_link = patient.img
+    picture = base64.decodestring(picture_link)
+
+    new_person_image = fr.load_image_file(picture)
     new_person_encoding = fr.face_encodings(new_person_image)
     encoded_faces.append(new_person_encoding)
-    names.append()
+    names.append(name)
 
 
 def initialize_camera():
@@ -33,7 +37,7 @@ def initialize_camera():
     # this enables the video feed
     vid_cap = cv.VideoCapture(0)
     process_this_frame = True
-
+    name = "Unknown"
     while True:
         # take a single frame from the feed and then resize it to 1/4 off the size for faster processing
         ret, frame = vid_cap.read()
@@ -72,8 +76,8 @@ def initialize_camera():
     # terminating the final processes
     vid_cap.release()
     cv.destroyAllWindows()
-    id = users_col.find("name")
-    patient = profile_col.find("patient")
+    id = users_col.find(name)
+    patient = profile_col.find(id)
     return patient;
 
 
@@ -83,9 +87,9 @@ def start():
     # REGULAR VERSION WITHOUT THE POPUP#
 
     print("Welcome to Medi-Vision")
-    func = input("Type in 1 if you'd like to start the ")
+    func = input("Type in 1 if you'd like to add someone to the database or Type 2 initialize the camera: ")
     if (func == 1):
-        addPerson()
+        addPerson(input("Provide a name: "))
     else:
         initialize_camera()
 
