@@ -4,40 +4,43 @@ import pymongo
 from pymongo import MongoClient
 import base64
 
-client = MongoClient('mongodb://kuber:password123@ds249942.mlab.com:49942/medar')
-
-db = client["medar"]
-collection = db.test_collection
-
+# client = MongoClient('mongodb://kuber:password123@ds249942.mlab.com:49942/medar')
+#
+# db = client["medar"]
+# collection = db.test_collection
+#
 # faces_col = db["faces"]
 # patient_col = db["patients"]
-
-users_col = db["users"]
-profile_col = db["profile"]
-
-known_face_names = []
+#
+# users_col = db["users"]
+# profile_col = db["profile"]
+#
+face_encodings = []
 face_locations = []
 face_names = []
 known_face_encodings = []
+known_face_names = []
+encoded = ""
 
 # the actual training and encoding
 def addPerson(name):
     # train cv to recognize face after it construct a set of vectors and then encodes it
-    id = users_col.find(name)
-    patient = profile_col.find(id)
-    picture_link = patient.img
-    picture = base64.decodestring(picture_link)
+    # id = users_col.find(name)
+    # patient = profile_col.find(id)
+    # picture_link = patient.img
+    # picture = base64.decodestring(picture_link)
 
-    new_person_image = fr.load_image_file(picture)
+    new_person_image = fr.load_image_file('shyam_pic.jpg')
     new_person_encoding = fr.face_encodings(new_person_image)
     known_face_encodings.append(new_person_encoding)
-    face_names.append(name)
+    encoded = new_person_encoding
+    known_face_names.append(name)
 
     initialize_camera()
 
 
 def initialize_camera():
-
+    found_name = ""
     # this enables the video feed
     vid_cap = cv.VideoCapture(0)
     process_this_frame = True
@@ -62,22 +65,21 @@ def initialize_camera():
                 name = "Unknown"
                 medical_info = "N/A"
 
-
-                counter = 0
                 temp = False
                 for i in matches:
-                    for j in i:
-                         if j == True:
-                             temp = True
-                             first_match = j
-                             break
-                         counter+=1
+                    print(i)
+                    if i == True:
+                        temp = True
+                        break
 
 
                 # If a match was found within encoded_faces, just use the first one.
                 if temp:
-                    first_match_index = counter
+                    first_match_index = matches.index(True)
                     name = known_face_names[first_match_index]
+                    # THEN USE THE NAME TO GET THE DATA FROM THE DICTIONARY OR HASTABLE OR WHATEVER
+
+                #face_names.append(name)
 
         process_this_frame = not process_this_frame
         if(name != 'Unknown'):
@@ -89,9 +91,10 @@ def initialize_camera():
     # terminating the final processes
     vid_cap.release()
     cv.destroyAllWindows()
-    id = users_col.find(name)
-    patient = profile_col.find(id)
-    return patient;
+    #id = users_col.find(name)
+    #patient = profile_col.find(id)
+    #return patient;
+    print(name)
 
 
 
@@ -100,13 +103,32 @@ def start():
     # REGULAR VERSION WITHOUT THE POPUP#
 
     print("Welcome to Medi-Vision")
-    func = int(input("Type in 1 if you'd like to add someone to the database or Type 2 initialize the camera: "))
-    if (func == 1):
+    print("Type in 1 if you'd like to add someone to the database or Type 2 initialize the camera: ")
+    func = int(input(""))
+    print(func)
+    if func == 1:
         addPerson(input("Provide a name: "))
     else:
         initialize_camera()
 
+        # NOW WITH POPUP THAT INCLUDES THE BUTTONS
+        # tk = Tk()
+        # var = StringVar()
+        # label = Label(tk, textvariable=var, relief=RAISED)
+        #
+        # var.set("Welcome to Medi-Vision \n"+"Would you like to add someone or"
+        #                                     "launch Medi-Vision", )  # What you want the text to be
+        # label.pack()
+        #
+        # tk.geometry("100x150")  # The size of the box
+        # tk.wm_title("Insight")  # The name of it
+        # b1 = Button(master, text="Starup Camera", command=initialize_camera())
+        # b2 = Button(master, text="Add New Person", command=addPerson())
+        # b1.pack(side = LEFT)
+        # b2.pack(side = RIGHT)
+        # tk.mainloop()
 
 start()
+
 
 #face_landmarks_list = fr.face_landmarks(image)
