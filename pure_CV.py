@@ -103,7 +103,7 @@ def initialize_camera():
 
                 cv.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv.FILLED)
                 font = cv.FONT_HERSHEY_DUPLEX
-                cv.putText(frame, name + '\n' + medical_info, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
+                cv.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
 
         cv.imshow('Video', frame)
         # exut by pressing 'q'
