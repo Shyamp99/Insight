@@ -4,7 +4,7 @@ import pymongo
 from pymongo import MongoClient
 import base64
 
-client = MongoClient('login stuff here')
+client = MongoClient('login stuff')
 
 db = client["medar"]
 collection = db.test_collection
