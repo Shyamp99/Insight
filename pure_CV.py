@@ -4,7 +4,7 @@ import pymongo
 from pymongo import MongoClient
 import base64
 
-# client = MongoClient('mongodb://kuber:password123@ds249942.mlab.com:49942/medar')
+# client = MongoClient('')
 #
 # db = client["medar"]
 # collection = db.test_collection
